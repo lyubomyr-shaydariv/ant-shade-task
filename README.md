@@ -19,7 +19,7 @@ Build with:
 
 Register the picked up JAR in `build.xml`:
 
-```
+```xml
 <taskdef
 	classpath="ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar"
 	resource="org/apache/tools/ant/taskdefs/shade.properties"
@@ -28,7 +28,7 @@ Register the picked up JAR in `build.xml`:
 
 And then apply (an adapted example taken from the Maven Shade Plugin [Relocating Classes example](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html)):
 
-```
+```xml
 <shade jar="foo-bar.jar" uberJar="foo-bar-shaded.jar">
 	<relocation pattern="org.codehaus.plexus.util" shadedPattern="org.shaded.plexus.util">
 		<exclude value="org.codehaus.plexus.util.xml.Xpp3Dom"/>
@@ -39,7 +39,7 @@ And then apply (an adapted example taken from the Maven Shade Plugin [Relocating
 
 The snippet above is an Ant adaptation of the following Maven Shade Plugin configuration snippet:
 
-```
+```xml
 <relocations>
 	<relocation>
 	<pattern>org.codehaus.plexus.util</pattern>
