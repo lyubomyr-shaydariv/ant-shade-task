@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -30,20 +32,30 @@ import static java.util.stream.Collectors.toSet;
 public final class Shade
 		extends Task {
 
-	private final Collection<Jar> jars = new ArrayList<>();
-	private final Collection<Relocation> relocations = new ArrayList<>();
+	private Set<Jar> jars;
+	private Collection<Relocation> relocations;
 	private File uberJar;
 
 	public Jar createJar() {
-		final Jar jar = new Jar();
+		return new Jar();
+	}
+
+	public void addConfiguredJar(final Jar jar) {
+		if ( jars == null ) {
+			jars = new LinkedHashSet<>();
+		}
 		jars.add(jar);
-		return jar;
 	}
 
 	public Relocation createRelocation() {
-		final Relocation relocation = new Relocation();
+		return new Relocation();
+	}
+
+	public void addConfiguredRelocation(final Relocation relocation) {
+		if ( relocations == null ) {
+			relocations = new ArrayList<>();
+		}
 		relocations.add(relocation);
-		return relocation;
 	}
 
 	public void setUberJar(final File uberJar) {
@@ -68,7 +80,7 @@ public final class Shade
 	private ShadeRequest getShadeRequest() {
 		final ShadeRequest shadeRequest = new ShadeRequest();
 		shadeRequest.setFilters(getFilters());
-		shadeRequest.setJars(geJars());
+		shadeRequest.setJars(getJars());
 		shadeRequest.setRelocators(getRelocations());
 		shadeRequest.setResourceTransformers(getResourceTransformers());
 		shadeRequest.setUberJar(getUberJar());
@@ -79,11 +91,8 @@ public final class Shade
 		return emptyList();
 	}
 
-	private Set<File> geJars() {
-		return jars
-				.stream()
-				.map(j -> j.path)
-				.collect(toSet());
+	private Set<File> getJars() {
+		return ofNullable(jars).map(js -> js.stream().map(j -> j.path).collect(toSet())).orElse(emptySet());
 	}
 
 	private List<Relocator> getRelocations() {
@@ -142,8 +151,8 @@ public final class Shade
 
 		private String pattern;
 		private String shadedPattern;
-		private List<Include> includes;
-		private List<Exclude> excludes;
+		private Collection<Include> includes;
+		private Collection<Exclude> excludes;
 		private boolean isRawString;
 
 		public void setPattern(final String pattern) {
