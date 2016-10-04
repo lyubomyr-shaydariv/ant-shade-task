@@ -24,6 +24,8 @@ import org.codehaus.plexus.logging.console.ConsoleLogger;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -92,11 +94,18 @@ public final class Shade
 	}
 
 	private Set<File> getJars() {
-		return ofNullable(jars).map(js -> js.stream().map(j -> j.path).collect(toSet())).orElse(emptySet());
+		final Set<File> files = ofNullable(jars)
+				.map(js -> js
+						.stream()
+						.map(j -> j.path)
+						.collect(toSet())
+				)
+				.orElse(emptySet());
+		return unmodifiableSet(files);
 	}
 
 	private List<Relocator> getRelocations() {
-		return relocations
+		final List<Relocator> relocators = relocations
 				.stream()
 				.map(r -> new SimpleRelocator(
 						r.pattern,
@@ -110,6 +119,7 @@ public final class Shade
 						r.isRawString
 				))
 				.collect(toList());
+		return unmodifiableList(relocators);
 	}
 
 	private List<ResourceTransformer> getResourceTransformers() {
