@@ -29,8 +29,7 @@ Register the picked up JAR in `build.xml`:
 And then apply (an adapted example taken from the Maven Shade Plugin [Relocating Classes example](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html)):
 
 ```
-<shade uberJar="foo-bar-shaded.jar">
-	<jar path="foo-bar.jar"/>
+<shade jar="foo-bar.jar" uberJar="foo-bar-shaded.jar">
 	<relocation pattern="org.codehaus.plexus.util" shadedPattern="org.shaded.plexus.util">
 		<exclude value="org.codehaus.plexus.util.xml.Xpp3Dom"/>
 		<exclude value="org.codehaus.plexus.util.xml.pull.*"/>

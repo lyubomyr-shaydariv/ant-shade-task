@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -29,24 +29,20 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public final class Shade
 		extends Task {
 
-	private Set<Jar> jars;
-	private Collection<Relocation> relocations;
+	private File jar;
 	private File uberJar;
+	private Collection<Relocation> relocations;
 
-	public Jar createJar() {
-		return new Jar();
+	public void setJar(final File jar) {
+		this.jar = jar;
 	}
 
-	public void addConfiguredJar(final Jar jar) {
-		if ( jars == null ) {
-			jars = new LinkedHashSet<>();
-		}
-		jars.add(jar);
+	public void setUberJar(final File uberJar) {
+		this.uberJar = uberJar;
 	}
 
 	public Relocation createRelocation() {
@@ -58,10 +54,6 @@ public final class Shade
 			relocations = new ArrayList<>();
 		}
 		relocations.add(relocation);
-	}
-
-	public void setUberJar(final File uberJar) {
-		this.uberJar = uberJar;
 	}
 
 	@Override
@@ -94,12 +86,8 @@ public final class Shade
 	}
 
 	private Set<File> getJars() {
-		final Set<File> files = ofNullable(jars)
-				.map(js -> js
-						.stream()
-						.map(j -> j.path)
-						.collect(toSet())
-				)
+		final Set<File> files = ofNullable(jar)
+				.map(Collections::singleton)
 				.orElse(emptySet());
 		return unmodifiableSet(files);
 	}
@@ -128,33 +116,6 @@ public final class Shade
 
 	private File getUberJar() {
 		return uberJar;
-	}
-
-	public static final class Jar {
-
-		private File path;
-
-		public void setPath(final File path) {
-			this.path = path;
-		}
-
-		@Override
-		public boolean equals(final Object o) {
-			if ( this == o ) {
-				return true;
-			}
-			if ( o == null || getClass() != o.getClass() ) {
-				return false;
-			}
-			final Jar jar = (Jar) o;
-			return path != null ? path.equals(jar.path) : jar.path == null;
-		}
-
-		@Override
-		public int hashCode() {
-			return path != null ? path.hashCode() : 0;
-		}
-
 	}
 
 	public static final class Relocation {
