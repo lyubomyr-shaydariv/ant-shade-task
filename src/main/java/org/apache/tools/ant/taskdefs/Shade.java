@@ -18,8 +18,6 @@ import org.apache.maven.plugins.shade.relocation.SimpleRelocator;
 import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.apache.tools.ant.taskdefs.Shade.Relocation.StringValue;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 
 import static java.util.Collections.emptyList;
@@ -59,9 +57,8 @@ public final class Shade
 	@Override
 	public void execute() {
 		try {
-			final Logger logger = new ConsoleLogger();
 			final Shader shader = new DefaultShader() {{
-				enableLogging(logger);
+				enableLogging(new ConsoleLogger());
 			}};
 			final ShadeRequest shadeRequest = getShadeRequest();
 			log("Shading: " + shadeRequest.getJars().stream().map(File::toString).collect(joining()));
@@ -71,51 +68,18 @@ public final class Shade
 		}
 	}
 
-	private ShadeRequest getShadeRequest() {
-		final ShadeRequest shadeRequest = new ShadeRequest();
-		shadeRequest.setFilters(getFilters());
-		shadeRequest.setJars(getJars());
-		shadeRequest.setRelocators(getRelocations());
-		shadeRequest.setResourceTransformers(getResourceTransformers());
-		shadeRequest.setUberJar(getUberJar());
-		return shadeRequest;
-	}
+	public abstract static class StringValue {
 
-	private List<Filter> getFilters() {
-		return emptyList();
-	}
+		private String value;
 
-	private Set<File> getJars() {
-		final Set<File> files = ofNullable(jar)
-				.map(Collections::singleton)
-				.orElse(emptySet());
-		return unmodifiableSet(files);
-	}
+		public final void setValue(final String value) {
+			this.value = value;
+		}
 
-	private List<Relocator> getRelocations() {
-		final List<Relocator> relocators = relocations
-				.stream()
-				.map(r -> new SimpleRelocator(
-						r.pattern,
-						r.shadedPattern,
-						ofNullable(r.includes)
-								.map(is -> is.stream().map(StringValue::getValue).collect(toList()))
-								.orElse(null),
-						ofNullable(r.excludes)
-								.map(es -> es.stream().map(StringValue::getValue).collect(toList()))
-								.orElse(null),
-						r.isRawString
-				))
-				.collect(toList());
-		return unmodifiableList(relocators);
-	}
+		public final String getValue() {
+			return value;
+		}
 
-	private List<ResourceTransformer> getResourceTransformers() {
-		return emptyList();
-	}
-
-	private File getUberJar() {
-		return uberJar;
 	}
 
 	public static final class Relocation {
@@ -160,20 +124,6 @@ public final class Shade
 			isRawString = rawString;
 		}
 
-		public abstract static class StringValue {
-
-			private String value;
-
-			public final void setValue(final String value) {
-				this.value = value;
-			}
-
-			public final String getValue() {
-				return value;
-			}
-
-		}
-
 		public static final class Include
 				extends StringValue {
 		}
@@ -182,6 +132,53 @@ public final class Shade
 				extends StringValue {
 		}
 
+	}
+
+	private ShadeRequest getShadeRequest() {
+		final ShadeRequest shadeRequest = new ShadeRequest();
+		shadeRequest.setFilters(prepareFilters());
+		shadeRequest.setJars(prepareJars());
+		shadeRequest.setRelocators(prepareRelocations());
+		shadeRequest.setResourceTransformers(prepareResourceTransformers());
+		shadeRequest.setUberJar(prepareUberJar());
+		return shadeRequest;
+	}
+
+	private static List<Filter> prepareFilters() {
+		return emptyList();
+	}
+
+	private Set<File> prepareJars() {
+		final Set<File> files = ofNullable(jar)
+				.map(Collections::singleton)
+				.orElse(emptySet());
+		return unmodifiableSet(files);
+	}
+
+	private List<Relocator> prepareRelocations() {
+		final List<Relocator> relocators = relocations
+				.stream()
+				.map(r -> new SimpleRelocator(
+						r.pattern,
+						r.shadedPattern,
+						ofNullable(r.includes)
+								.map(is -> is.stream().map(StringValue::getValue).collect(toList()))
+								.orElse(null),
+						ofNullable(r.excludes)
+								.map(es -> es.stream().map(StringValue::getValue).collect(toList()))
+								.orElse(null),
+						r.isRawString
+				))
+				.collect(toList());
+		return unmodifiableList(relocators);
+	}
+
+	private static List<ResourceTransformer> prepareResourceTransformers() {
+		return emptyList();
+	}
+
+	private File prepareUberJar() {
+		return uberJar;
 	}
 
 }
