@@ -17,6 +17,7 @@ import org.apache.maven.plugins.shade.relocation.SimpleRelocator;
 import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.Shade.Relocation.StringValue;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 
@@ -74,7 +75,6 @@ public final class Shade
 		return shadeRequest;
 	}
 
-	// TODO
 	private List<Filter> getFilters() {
 		return emptyList();
 	}
@@ -93,19 +93,16 @@ public final class Shade
 						r.pattern,
 						r.shadedPattern,
 						ofNullable(r.includes)
-								.flatMap(is -> ofNullable(is.includes))
-								.map(is -> is.stream().map(i -> i.include).collect(toList()))
+								.map(is -> is.stream().map(StringValue::getValue).collect(toList()))
 								.orElse(null),
 						ofNullable(r.excludes)
-								.flatMap(es -> ofNullable(es.excludes))
-								.map(es -> es.stream().map(e -> e.exclude).collect(toList()))
+								.map(es -> es.stream().map(StringValue::getValue).collect(toList()))
 								.orElse(null),
 						r.isRawString
 				))
 				.collect(toList());
 	}
 
-	// TODO
 	private List<ResourceTransformer> getResourceTransformers() {
 		return emptyList();
 	}
@@ -145,8 +142,8 @@ public final class Shade
 
 		private String pattern;
 		private String shadedPattern;
-		private Includes includes;
-		private Excludes excludes;
+		private List<Include> includes;
+		private List<Exclude> excludes;
 		private boolean isRawString;
 
 		public void setPattern(final String pattern) {
@@ -157,70 +154,52 @@ public final class Shade
 			this.shadedPattern = shadedPattern;
 		}
 
-		public Includes createIncludes() {
-			final Includes includes = new Includes();
-			this.includes = includes;
-			return includes;
+		public Include createInclude() {
+			return new Include();
 		}
 
-		public Excludes createExcludes() {
-			final Excludes excludes = new Excludes();
-			this.excludes = excludes;
-			return excludes;
+		public void addConfiguredInclude(final Include include) {
+			if ( includes == null ) {
+				includes = new ArrayList<>();
+			}
+			includes.add(include);
+		}
+
+		public Exclude createExclude() {
+			return new Exclude();
+		}
+
+		public void addConfiguredExclude(final Exclude exclude) {
+			if ( excludes == null ) {
+				excludes = new ArrayList<>();
+			}
+			excludes.add(exclude);
 		}
 
 		public void setRawString(final boolean rawString) {
 			isRawString = rawString;
 		}
 
-		public static final class Includes {
+		public abstract static class StringValue {
 
-			private List<Include> includes;
+			private String value;
 
-			public Include createInclude() {
-				final Include include = new Include();
-				if ( includes == null ) {
-					includes = new ArrayList<>();
-				}
-				includes.add(include);
-				return include;
+			public final void setValue(final String value) {
+				this.value = value;
 			}
 
-			public static final class Include {
-
-				private String include;
-
-				public void addText(final String include) {
-					this.include = include;
-				}
-
+			public final String getValue() {
+				return value;
 			}
 
 		}
 
-		public static final class Excludes {
+		public static final class Include
+				extends StringValue {
+		}
 
-			private List<Exclude> excludes;
-
-			public Exclude createExclude() {
-				final Exclude exclude = new Exclude();
-				if ( excludes == null ) {
-					excludes = new ArrayList<>();
-				}
-				excludes.add(exclude);
-				return exclude;
-			}
-
-			public static final class Exclude {
-
-				private String exclude;
-
-				public void addText(final String exclude) {
-					this.exclude = exclude;
-				}
-
-			}
-
+		public static final class Exclude
+				extends StringValue {
 		}
 
 	}
