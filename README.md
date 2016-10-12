@@ -12,12 +12,9 @@ Requirements
 How to use
 ===
 
-Build with:
-
 * Build with `mvn clean package`.
 * Pick `ant-shade-task-0.1-SNAPSHOT.jar` or `ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar` from the `target` directory and copy it to elsewhere.
-
-Register the picked up JAR in `build.xml`:
+* Register the picked up JAR file in `build.xml`:
 
 ```xml
 <taskdef
@@ -26,7 +23,7 @@ Register the picked up JAR in `build.xml`:
 />
 ```
 
-And then apply (an adapted example taken from the Maven Shade Plugin [Relocating Classes example](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html)):
+* Apply (an adapted example taken from the Maven Shade Plugin [Relocating Classes example](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html)):
 
 ```xml
 <shade jar="foo-bar.jar" uberJar="foo-bar-shaded.jar">
@@ -52,6 +49,11 @@ The snippet above is an Ant adaptation of the following Maven Shade Plugin confi
 </relocations>
 ```
 
+What's supported
+===
+
+* Only `<relocations>` are exposed through the `<shade>` task so far.
+
 Version history
 ===
 
@@ -60,6 +62,5 @@ Nothing tagged yet.
 Known issues
 ===
 
-* Only `<relocations>` are exposed through the `<shade>` task so far.
-* `ant-shade-task-0.1-SNAPSHOT.jar` does not include any dependencies and the dependencies should be picked up either manually or using `ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar` that's currently large.
-* Not a part of the standard Apache Ant taskdef library. Currently it occupies the `org.apache.tools.ant.taskdefs.Shade` class, but probably should be moved to another non-Apache package.
+* `ant-shade-task-0.1-SNAPSHOT.jar` does not include any dependencies and the dependencies should be picked up either manually or using `ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar` that's currently large (about 8.7MB).
+* Not a part of the standard Apache Ant taskdef library, but occupies the `org.apache.tools.ant.taskdefs.Shade` class, and probably should be moved to another non-Apache package.
