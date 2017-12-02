@@ -1,16 +1,13 @@
-What is it?
-===
+# What is it?
 
 `ant-shade-task` is a port of [Apache Maven](https://maven.apache.org/) [Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) (or `maven-shade-plugin`) for [Ant](http://ant.apache.org/).
 
-Requirements
----
+## Requirements
 
 * Use: Java 8 and Apache Ant.
 * Build: Java 8 and Apache Maven.
 
-How to use
-===
+## How to use
 
 * Build with `mvn clean package`.
 * Pick `ant-shade-task-0.1-SNAPSHOT.jar` or `ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar` from the `target` directory and copy it to elsewhere.
@@ -49,18 +46,15 @@ The snippet above is an Ant adaptation of the following Maven Shade Plugin confi
 </relocations>
 ```
 
-What's supported
-===
+## What's supported
 
 * Only `<relocations>` are exposed through the `<shade>` task so far.
 
-Version history
-===
+## Version history
 
 Nothing tagged yet.
 
-Known issues
-===
+## Known issues
 
 * `ant-shade-task-0.1-SNAPSHOT.jar` does not include any dependencies and the dependencies should be picked up either manually or using `ant-shade-task-0.1-SNAPSHOT-jar-with-dependencies.jar` that's currently large (about 8.7MB).
 * Not a part of the standard Apache Ant taskdef library, but occupies the `org.apache.tools.ant.taskdefs.Shade` class, and probably should be moved to another non-Apache package.
