@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.shade.DefaultShader;
@@ -19,14 +21,6 @@ import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 public final class Shade
 		extends Task {
@@ -61,7 +55,7 @@ public final class Shade
 				enableLogging(new ConsoleLogger());
 			}};
 			final ShadeRequest shadeRequest = getShadeRequest();
-			log("Shading: " + shadeRequest.getJars().stream().map(File::toString).collect(joining()));
+			log("Shading: " + shadeRequest.getJars().stream().map(File::toString).collect(Collectors.joining()));
 			shader.shade(shadeRequest);
 		} catch ( final IOException | MojoExecutionException ex ) {
 			throw new BuildException(ex);
@@ -145,14 +139,14 @@ public final class Shade
 	}
 
 	private static List<Filter> prepareFilters() {
-		return emptyList();
+		return Collections.emptyList();
 	}
 
 	private Set<File> prepareJars() {
-		final Set<File> files = ofNullable(jar)
+		final Set<File> files = Optional.ofNullable(jar)
 				.map(Collections::singleton)
-				.orElse(emptySet());
-		return unmodifiableSet(files);
+				.orElse(Collections.emptySet());
+		return Collections.unmodifiableSet(files);
 	}
 
 	private List<Relocator> prepareRelocations() {
@@ -161,20 +155,20 @@ public final class Shade
 				.map(r -> new SimpleRelocator(
 						r.pattern,
 						r.shadedPattern,
-						ofNullable(r.includes)
-								.map(is -> is.stream().map(StringValue::getValue).collect(toList()))
+						Optional.ofNullable(r.includes)
+								.map(is -> is.stream().map(StringValue::getValue).collect(Collectors.toList()))
 								.orElse(null),
-						ofNullable(r.excludes)
-								.map(es -> es.stream().map(StringValue::getValue).collect(toList()))
+						Optional.ofNullable(r.excludes)
+								.map(es -> es.stream().map(StringValue::getValue).collect(Collectors.toList()))
 								.orElse(null),
 						r.isRawString
 				))
-				.collect(toList());
-		return unmodifiableList(relocators);
+				.collect(Collectors.toList());
+		return Collections.unmodifiableList(relocators);
 	}
 
 	private static List<ResourceTransformer> prepareResourceTransformers() {
-		return emptyList();
+		return Collections.emptyList();
 	}
 
 	private File prepareUberJar() {
