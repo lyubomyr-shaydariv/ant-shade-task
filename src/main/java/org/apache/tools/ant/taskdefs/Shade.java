@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.shade.DefaultShader;
@@ -25,8 +26,13 @@ import org.codehaus.plexus.logging.console.ConsoleLogger;
 public final class Shade
 		extends Task {
 
+	@Nullable
 	private File jar;
+
+	@Nullable
 	private File uberJar;
+
+	@Nullable
 	private Collection<Relocation> relocations;
 
 	public void setJar(final File jar) {
@@ -131,47 +137,60 @@ public final class Shade
 	private ShadeRequest getShadeRequest() {
 		final ShadeRequest shadeRequest = new ShadeRequest();
 		shadeRequest.setFilters(prepareFilters());
-		shadeRequest.setJars(prepareJars());
-		shadeRequest.setRelocators(prepareRelocations());
+		shadeRequest.setJars(prepareJars(jar));
+		shadeRequest.setRelocators(prepareRelocations(relocations));
 		shadeRequest.setResourceTransformers(prepareResourceTransformers());
-		shadeRequest.setUberJar(prepareUberJar());
+		shadeRequest.setUberJar(prepareUberJar(uberJar));
 		return shadeRequest;
 	}
 
+	@Nonnull
 	private static List<Filter> prepareFilters() {
 		return Collections.emptyList();
 	}
 
-	private Set<File> prepareJars() {
-		final Set<File> files = Optional.ofNullable(jar)
-				.map(Collections::singleton)
-				.orElse(Collections.emptySet());
-		return Collections.unmodifiableSet(files);
+	@Nonnull
+	private static Set<File> prepareJars(@Nullable final File jar)
+			throws BuildException {
+		if ( jar == null ) {
+			throw new BuildException("The jar option requires a non-null value");
+		}
+		return Collections.unmodifiableSet(Collections.singleton(jar));
 	}
 
-	private List<Relocator> prepareRelocations() {
-		final List<Relocator> relocators = relocations
+	@Nonnull
+	private static List<Relocator> prepareRelocations(@Nullable final Collection<Relocation> relocations)
+			throws BuildException {
+		if ( relocations == null ) {
+			throw new BuildException("The relocations option requires a non-null value");
+		}
+		return relocations
 				.stream()
 				.map(r -> new SimpleRelocator(
 						r.pattern,
 						r.shadedPattern,
-						Optional.ofNullable(r.includes)
-								.map(is -> is.stream().map(StringValue::getValue).collect(Collectors.toList()))
-								.orElse(null),
-						Optional.ofNullable(r.excludes)
-								.map(es -> es.stream().map(StringValue::getValue).collect(Collectors.toList()))
-								.orElse(null),
+						r.includes != null
+								? r.includes.stream().map(StringValue::getValue).collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList))
+								: null,
+						r.excludes != null
+								? r.excludes.stream().map(StringValue::getValue).collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList))
+								: null,
 						r.isRawString
 				))
-				.collect(Collectors.toList());
-		return Collections.unmodifiableList(relocators);
+				.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
 	}
 
+	@Nonnull
 	private static List<ResourceTransformer> prepareResourceTransformers() {
 		return Collections.emptyList();
 	}
 
-	private File prepareUberJar() {
+	@Nonnull
+	private static File prepareUberJar(@Nullable final File uberJar)
+			throws BuildException {
+		if ( uberJar == null ) {
+			throw new BuildException("The uberJar option requires a non-null value");
+		}
 		return uberJar;
 	}
 
