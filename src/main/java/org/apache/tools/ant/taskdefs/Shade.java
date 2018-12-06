@@ -35,18 +35,22 @@ public final class Shade
 	@Nullable
 	private Collection<Relocation> relocations;
 
+	@SuppressWarnings("unused")
 	public void setJar(final File jar) {
 		this.jar = jar;
 	}
 
+	@SuppressWarnings("unused")
 	public void setUberJar(final File uberJar) {
 		this.uberJar = uberJar;
 	}
 
+	@SuppressWarnings("unused")
 	public Relocation createRelocation() {
 		return new Relocation();
 	}
 
+	@SuppressWarnings("unused")
 	public void addConfiguredRelocation(final Relocation relocation) {
 		if ( relocations == null ) {
 			relocations = new ArrayList<>();
@@ -72,10 +76,12 @@ public final class Shade
 
 		private String value;
 
+		@SuppressWarnings("unused")
 		public final void setValue(final String value) {
 			this.value = value;
 		}
 
+		@SuppressWarnings("unused")
 		public final String getValue() {
 			return value;
 		}
@@ -90,18 +96,22 @@ public final class Shade
 		private Collection<Exclude> excludes;
 		private boolean isRawString;
 
+		@SuppressWarnings("unused")
 		public void setPattern(final String pattern) {
 			this.pattern = pattern;
 		}
 
+		@SuppressWarnings("unused")
 		public void setShadedPattern(final String shadedPattern) {
 			this.shadedPattern = shadedPattern;
 		}
 
+		@SuppressWarnings("unused")
 		public Include createInclude() {
 			return new Include();
 		}
 
+		@SuppressWarnings("unused")
 		public void addConfiguredInclude(final Include include) {
 			if ( includes == null ) {
 				includes = new ArrayList<>();
@@ -109,10 +119,12 @@ public final class Shade
 			includes.add(include);
 		}
 
+		@SuppressWarnings("unused")
 		public Exclude createExclude() {
 			return new Exclude();
 		}
 
+		@SuppressWarnings("unused")
 		public void addConfiguredExclude(final Exclude exclude) {
 			if ( excludes == null ) {
 				excludes = new ArrayList<>();
@@ -120,6 +132,7 @@ public final class Shade
 			excludes.add(exclude);
 		}
 
+		@SuppressWarnings("unused")
 		public void setRawString(final boolean rawString) {
 			isRawString = rawString;
 		}
